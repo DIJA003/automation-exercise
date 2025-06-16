@@ -23,7 +23,7 @@ public class BaseTest {
 	 
 	@AfterMethod
 		public void closeBrowser() throws InterruptedException {
-			driver.close();
+			driver.quit();
 	  	}
 	
 	

@@ -1,9 +1,12 @@
 package tests;
 
 import java.awt.AWTException;
+import java.util.List;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import com.github.javafaker.Faker;
 
 import pages.CartPage;
 import pages.CheckOutPage;
@@ -11,116 +14,76 @@ import pages.HomePage;
 import pages.LoginAndRigsterPage;
 import pages.PaymentPage;
 import pages.SignUpPage;
-import tools.AdRemove;
 import tools.BaseTest;
 
 public class testCase_14 extends BaseTest{
 
 	@Test()
 		public void singupWithNonExistingEmail() throws InterruptedException, AWTException {
+			Faker faker  = new Faker();
+			
+			String name = faker.name().username();
+	        String email = faker.internet().emailAddress();
+	        String password = faker.internet().password(8, 16);
+	        String firstName = faker.name().firstName();
+	        String lastName = faker.name().lastName();
+	        String company = faker.company().name();
+	        String address1 = faker.address().streetAddress();
+	        String address2 = faker.address().secondaryAddress();
+	        String state = faker.address().state();
+	        String city = faker.address().city();
+	        String zipCode = faker.address().zipCode();
+	        String mobileNumber = faker.phoneNumber().cellPhone();
+	        
 			HomePage home = new HomePage(driver);
-			CartPage cart = new CartPage(driver);
-			LoginAndRigsterPage register = new LoginAndRigsterPage(driver);
-			SignUpPage signUp = new SignUpPage(driver);
-			CheckOutPage checkOut = new CheckOutPage(driver);
-			PaymentPage pay = new PaymentPage(driver);
 			
 			Assert.assertTrue(home.isHomePageDisplayed(),"Home page is not displayed");
 			
-			AdRemove.removeAd(driver);
+			home.addFirstProduct()
+				.continueShopping();
 			
-			home.scrollDown();
-			home.addFirstProduct();
-			home.continueShopping();
-			home.clickCartPageButton();
-			
+			CartPage cart = home.clickCartPageButton();
 			cart.clickProceedToCheckout();
-			cart.clickLoginRigsterButton();
 			
-			AdRemove.removeAd(driver);
+			LoginAndRigsterPage register = cart.clickRigsterLoginButton();
 
-			register.registerNameAndEmail("user", "anything99@gmail.com");
-			register.clickSignUp();
-			
-			AdRemove.removeAd(driver);
-			
-			signUp.clickMrButton();
-			signUp.setPassword("123456789");
-			signUp.setDateOfBirth(13, "December", 2003);
-			signUp.clickNewSletterButton();
-			signUp.clickReciveSpecialOffersButton();
-			
-			signUp.scrollDown();
-			signUp.setFirstName("mustafa");
-			signUp.setLastName("muhammed");
-			signUp.setCompany("DEPI");
-			signUp.setAddress1("Taawan");
-			signUp.setAddress2("Etihad st");
-			signUp.setCountry("Canada");
-			signUp.setState("Giza");
-			
-			signUp.scrollDown();
-			
-			signUp.setCity("KingsLanding");
-			signUp.setZipCode("0000");
-			signUp.setMobileNumber("12345678901");
-			signUp.clickCreatAccountButton();
-			
-			AdRemove.removeAd(driver);
-			
+			register.registerNameAndEmail(name, email);
+			SignUpPage signUp = register.clickSignUp();
+			signUp.fillAccountDetails(password, "15", "July", "1985", firstName, lastName, company, address1,address2, "India", state, city, zipCode, mobileNumber);
 			
 			Assert.assertTrue(signUp.isAccountCreated(),"Account wasn't created");
 			
-			signUp.clickContinueButton();
-			
-			AdRemove.removeAd(driver);
+			home = signUp.clickContinueButton();
 			
 			Assert.assertTrue(home.isLoggedIn());
-			home.clickCartPageButton();
 			
-			cart.clickProceedToCheckout();
+			cart = home.clickCartPageButton();
+			CheckOutPage checkOut = cart.clickProceedToCheckout();
 			
-			AdRemove.removeAd(driver);
 			
-		    String expectedDeliveryName = "Mr. mustafa muhammed";
-		    String expectedDeliveryCompany = "DEPI";
-		    String expectedDeliveryAddress1 = "Taawan";
-		    String expectedDeliveryAddress2 = "Etihad st";
-		    String expectedDeliveryCityStateZipCode = "KingsLanding Giza 0000";
-		    String expectedDeliveryCountry = "Canada";
-		    String expectedDeliveryPhone = "12345678901";
 
-		    Assert.assertEquals(checkOut.getDeliveryName(), expectedDeliveryName);
-		    Assert.assertEquals(checkOut.getDeliveryCompany(), expectedDeliveryCompany);
-		    Assert.assertEquals(checkOut.getDeliveryAddress1(), expectedDeliveryAddress1);
-		    Assert.assertEquals(checkOut.getDeliveryAddress2(), expectedDeliveryAddress2);
-		    Assert.assertEquals(checkOut.getDeliveryPostcode(), expectedDeliveryCityStateZipCode);
-		    Assert.assertEquals(checkOut.getDeliveryCountry(), expectedDeliveryCountry);
-		    Assert.assertEquals(checkOut.getDeliveryPhone(), expectedDeliveryPhone);
+		    List<String> deliveryDetails = checkOut.getDeliveryAddressDetails();
+			List<String> billingDetails = checkOut.getBillingAddressDetails();
 
-		    Assert.assertEquals(checkOut.getBillingName(), expectedDeliveryName);
-		    Assert.assertEquals(checkOut.getBillingAddress1(), expectedDeliveryAddress1);
-		    Assert.assertEquals(checkOut.getBillingAddress2(), expectedDeliveryAddress2);
-		    Assert.assertEquals(checkOut.getBillingPostcode(), expectedDeliveryCityStateZipCode);
-		    Assert.assertEquals(checkOut.getBillingCountry(), expectedDeliveryCountry);
-		    Assert.assertEquals(checkOut.getBillingPhone(), expectedDeliveryPhone);
+			Assert.assertTrue(deliveryDetails.stream().anyMatch(line -> line.contains(firstName) && line.contains(lastName)));
+			Assert.assertTrue(deliveryDetails.stream().anyMatch(line -> line.equals(company)));
+			Assert.assertTrue(deliveryDetails.stream().anyMatch(line -> line.equals(address1)));
+			Assert.assertTrue(deliveryDetails.stream().anyMatch(line -> line.equals(address2)));
+			Assert.assertTrue(deliveryDetails.stream().anyMatch(line -> line.contains(city) && line.contains(state) && line.contains(zipCode)));
+			Assert.assertTrue(deliveryDetails.stream().anyMatch(line -> line.equals(mobileNumber)));
+
+			Assert.assertTrue(billingDetails.stream().anyMatch(line -> line.contains(firstName) && line.contains(lastName)));
+			Assert.assertTrue(billingDetails.stream().anyMatch(line -> line.equals(address1)));
 		    
-		    checkOut.scrollDown();
+		    checkOut.scrollPage(500);
 			Assert.assertEquals(cart.getProductsCount(),1);
 	        
 	        checkOut.typeComment("Leave at door");
-	        checkOut.clickPlaceOrder();
+	        PaymentPage pay = checkOut.clickPlaceOrder();
 	        
-	        AdRemove.removeAd(driver);
 	        
-	        pay.setNameOnCard("mustafa");
-	        pay.setCardNumber("12345678909");
-	        pay.setCardCVC("312");
-	        pay.setCardMonthOfExpire("12");
-	        pay.setCardYearOfExpire("2027");
-	        pay.clickPayAndConfirmButton();
-	        
-	        AdRemove.removeAd(driver);
+	        pay.setPaymentDetails("mustafa", "12345678909", "312", "12", "2027")
+	           .clickPayAndConfirmButton();
 	        
 	        Assert.assertTrue(pay.isOrderConfirmed(), "Order is not confirmed");
 	        
@@ -128,27 +91,19 @@ public class testCase_14 extends BaseTest{
 	        
 	        Assert.assertTrue(pay.isAccountedDeleted(), "Account is not deleted");
 	        
-	        pay.clickContinueAfterDeleteButton();       
+	        home = pay.clickContinueAfterDeleteButton();       
 			
 		}
 	@Test
-	public void testSignupWithExistingEmail() throws InterruptedException {
+	public void signupWithNonExistingEmail() throws InterruptedException {
 		HomePage home = new HomePage(driver);
-		CartPage cart = new CartPage(driver);
-		LoginAndRigsterPage register = new LoginAndRigsterPage(driver);
 		
-		AdRemove.removeAd(driver);
-		
-		home.scrollDown();
-		home.addFirstProduct();
-		home.continueShopping();
-		home.clickCartPageButton();
-		
+		home.scrollPage(500)
+			.addFirstProduct()
+			.continueShopping();
+		CartPage cart = home.clickCartPageButton();
 		cart.clickProceedToCheckout();
-		cart.clickLoginRigsterButton();
-		
-		AdRemove.removeAd(driver);
-
+		LoginAndRigsterPage register = cart.clickLoginRigsterButton();
 		register.registerNameAndEmail("user", "anything2@gmail.com");
 		register.clickSignUp();
 		

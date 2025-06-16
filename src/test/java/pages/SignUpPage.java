@@ -1,185 +1,207 @@
 package pages;
 
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.Select;
 
-public class SignUpPage {
-	WebDriver driver;
+import tools.BasePage;
+
+public class SignUpPage extends BasePage {
 	
 	public SignUpPage(WebDriver driver) {
-		this.driver = driver;
+		super(driver);
+		removeAd(driver);
 		PageFactory.initElements(driver, this);
 	}
 
-	@FindBy(xpath = "//input[@id='id_gender1']")
-	private WebElement manBtn;
+	@FindBy(id = "id_gender1")
+    	private WebElement manBtn;
+    
+    @FindBy(id = "id_gender2")
+    	private WebElement womanBtn;
+    
+    @FindBy(id = "password")
+    	private WebElement password;
+    
+    @FindBy(id = "days")
+    	private WebElement day;
+    
+    @FindBy(id = "months")
+    	private WebElement month;
+    
+    @FindBy(id = "years")
+    	private WebElement year;
+    
+    @FindBy(id = "newsletter")
+    	private WebElement newsletterbtn;
+    
+    @FindBy(id = "optin")
+    	private WebElement receiveOffersBtn;
+    
+    @FindBy(id = "first_name")
+    	private WebElement firstName;
+    
+    @FindBy(id = "last_name")
+    	private WebElement lastName;
+    
+    @FindBy(id = "company")
+    	private WebElement company;
+    
+    @FindBy(id = "address1")
+    	private WebElement address1;
+    
+    @FindBy(id = "address2")
+    	private WebElement address2;
+    
+    @FindBy(id = "country")
+    	private WebElement country;
+    
+    @FindBy(id = "state")
+    	private WebElement state;
+    
+    @FindBy(id = "city")
+    	private WebElement city;
+    
+    @FindBy(id = "zipcode")
+    	private WebElement zipCode;
+    
+    @FindBy(id = "mobile_number")
+    	private WebElement mobileNumber;
+    
+    @FindBy(xpath = "//button[normalize-space()='Create Account']")
+    	private WebElement creatAccountBtn;
+    
+    @FindBy(xpath = "//b[normalize-space()='Account Created!']")
+    	private WebElement successMsg;
+    
+    @FindBy(xpath = "//a[normalize-space()='Continue']")
+    	private WebElement continueBtn;
 	
-	@FindBy(xpath = "//input[@id='id_gender2']")
-	private WebElement womanBtn;
-	
-	@FindBy(xpath = "(//input[@id='password'])[1]")
-	private WebElement password;
-	
-	@FindBy(xpath = "(//select[@id='days'])[1]")
-	private WebElement day;
-	
-	@FindBy(xpath = "(//select[@id='months'])[1]")
-	private WebElement month;
-	
-	@FindBy(xpath = "(//select[@id='years'])[1]")
-	private WebElement year;
-	
-	@FindBy(xpath = "(//input[@id='newsletter'])[1]")
-	private WebElement newsletterbtn;
-	
-	@FindBy(xpath = "(//input[@id='optin'])[1]")
-	private WebElement reciveOffersBtn;
-	
-	@FindBy(xpath = "(//input[@id='first_name'])[1]")
-	private WebElement firstName;
-	
-	@FindBy(xpath = "(//input[@id='last_name'])[1]")
-	private WebElement lastName;
-	
-	@FindBy(xpath = "(//input[@id='company'])[1]")
-	private WebElement company;
-	
-	@FindBy(xpath = "(//input[@id='address1'])[1]")
-	private WebElement address1;
-	
-	@FindBy(xpath = "(//input[@id='address2'])[1]")
-	private WebElement address2;
-	
-	@FindBy(xpath = "(//select[@id='country'])[1]")
-	private WebElement country;
-	
-	@FindBy(xpath = "(//input[@id='state'])[1]")
-	private WebElement state;
-	
-	@FindBy(xpath = "(//input[@id='city'])[1]")
-	private WebElement city;
-	
-	@FindBy(xpath = "(//input[@id='zipcode'])[1]")
-	private WebElement zipCode;
-	
-	@FindBy(xpath = "(//input[@id='mobile_number'])[1]")
-	private WebElement mobileNumber;
-	
-	@FindBy(xpath = "(//button[normalize-space()='Create Account'])[1]")
-	private WebElement creatAccoutnBtn;
-	
-	@FindBy(xpath = "(//b[normalize-space()='Account Created!'])[1]")
-	private WebElement successMsg;
-	
-	@FindBy(xpath = "(//a[normalize-space()='Continue'])[1]")
-	private WebElement continueBtn;
-	
-	public boolean isAccountCreated() {
-		return successMsg.isDisplayed();
+    public boolean isAccountCreated() {
+        waitForVisibilty(successMsg);
+        return successMsg.isDisplayed();
+    }
+    public HomePage clickContinueButton() {
+        waitAndClick(continueBtn);
+        return new HomePage(driver);
+    }
+    
+    public SignUpPage setFirstName(String fName) {
+        firstName.sendKeys(fName);
+        return this;
+    }
+    
+    public SignUpPage setLastName(String lName) {
+        lastName.sendKeys(lName);
+        return this;
+    }
+    
+    public SignUpPage setCompany(String comp) {
+        company.sendKeys(comp);
+        return this;
+    }
+    
+    public SignUpPage setAddress1(String add1) {
+        address1.sendKeys(add1);
+        return this;
+    }
+    
+    public SignUpPage setAddress2(String add2) {
+        address2.sendKeys(add2);
+        return this;
+    }
+
+    public SignUpPage setCountry(String countryName) {
+        new Select(country).selectByVisibleText(countryName);
+        return this;
+    }
+    
+    public SignUpPage setState(String st) {
+        state.sendKeys(st);
+        return this;
+    }
+    
+    public SignUpPage setCity(String ct) {
+        city.sendKeys(ct);
+        return this;
+    }
+    
+    public SignUpPage setZipCode(String zpCode) {
+        zipCode.sendKeys(zpCode);
+        return this;
+    }
+    
+    public SignUpPage setMobileNumber(String number) {
+        mobileNumber.sendKeys(number);
+        return this;
+    }
+    
+    public SignUpPage clickCreateAccountButton() {
+        scrollIntoView(creatAccountBtn);
+        waitAndClick(creatAccountBtn);
+        return this;
+    }
+
+    public SignUpPage setDateOfBirth(String day2, String monthText, String year2) {
+        new Select(day).selectByValue(String.valueOf(day2));
+        new Select(month).selectByVisibleText(monthText);
+        new Select(year).selectByValue(String.valueOf(year2));
+        return this;
+    }
+    
+    public SignUpPage setPassword(String pass) {
+        password.sendKeys(pass);
+        return this;
+    }
+    
+    public SignUpPage clickMrsButton() {
+        waitAndClick(womanBtn);
+        return this;
+    }
+    
+    public SignUpPage clickNewsletterButton() {
+        waitAndClick(newsletterbtn);
+        return this;
+    }
+
+    public SignUpPage clickReciveSpecialOffersButton() {
+        waitAndClick(receiveOffersBtn);
+        return this;
+    }
+    
+    public SignUpPage clickMrButton() {
+        waitAndClick(manBtn);
+        return this;
+    }
+    
+    public SignUpPage scrollPage(int pixles) {
+	    scrollDownBy(pixles);
+	    return this;
 	}
-	public void clickContinueButton() {
-		continueBtn.click();
-	}
-	public void setFirstName(String fName) {
-		firstName.clear();
-		firstName.sendKeys(fName);
-	}
-	
-	public void setLastName(String lName) {
-		lastName.clear();
-		lastName.sendKeys(lName);
-	}
-	
-	public void setCompany(String comp) {
-		company.clear();
-		company.sendKeys(comp);
-	}
-	
-	public void setAddress1(String add1) {
-		address1.clear();
-		address1.sendKeys(add1);
-	}
-	
-	public void setAddress2(String add2) {
-		address2.clear();
-		address2.sendKeys(add2);
-	}
-	
-	public void setCountry(String cnt) {
-		country.click();
-		country.sendKeys(cnt.toLowerCase());
-	}
-	
-	public void setState(String st) {
-		state.clear();
-		state.sendKeys(st);
-	}
-	
-	public void setCity(String ct) {
-		city.clear();
-		city.sendKeys(ct);
-	}
-	
-	public void setZipCode(String zpCode) {
-		zipCode.clear();
-		zipCode.sendKeys(zpCode);
-	}
-	
-	public void setMobileNumber(String number) {
-		mobileNumber.clear();
-		mobileNumber.sendKeys(number);
-	}
-	
-	public void clickCreatAccountButton() {
-		creatAccoutnBtn.click();
-	}
-	
-	public void setDay(int d) {
-		day.click();
-		day.sendKeys("" + d + "");
-	}
-	
-	public void setMonth(String m) {
-		month.click();
-		month.sendKeys(m.toLowerCase());
-	}
-	
-	public void setYear(int y) {
-		year.click();
-		year.sendKeys("" + y + "");
-	}
-	
-	public void setDateOfBirth(int d, String m, int y) {
-		setDay(d);
-		setMonth(m);
-		setYear(y);
-	}
-	
-	public void setPassword(String pass) {
-		password.clear();
-		password.sendKeys(pass);
-	}
-	
-	public void clickMrsButton() {
-		womanBtn.click();
-	}
-	
-	public void clickNewSletterButton() {
-		newsletterbtn.click();
-	}
-	public void clickReciveSpecialOffersButton() {
-		reciveOffersBtn.click();
-	}
-	
-	public void clickMrButton() {
-		manBtn.click();
-	}
-	
-	public void scrollDown() {
-	    JavascriptExecutor js = (JavascriptExecutor) driver;
-	    js.executeScript("window.scrollBy(0, 500)");
-	}
+    
+    public SignUpPage fillAccountDetails(
+            String password, String day, String month, String year, 
+            String firstName, String lastName, String company, 
+            String address1, String address2, String country, 
+            String state, String city, String zipcode, String mobileNumber
+        ) {
+    		setPassword(password);
+    		setDateOfBirth(day, month, year);
+			scrollDownBy(500);
+    		setFirstName(firstName);
+        	setLastName(lastName);
+            setCompany(company);
+            setAddress1(address1);
+            setAddress2(address2);
+            scrollDownBy(500);
+            setCountry(country);
+            setState(state);
+            setCity(city);
+            setZipCode(zipcode);
+            setMobileNumber(mobileNumber);
+            clickCreateAccountButton();
+            return this;
+        }
 }

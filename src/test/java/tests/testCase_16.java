@@ -1,126 +1,74 @@
 package tests;
 
 import java.awt.AWTException;
-import java.time.Duration;
 
-import org.openqa.selenium.firefox.FirefoxDriver;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
+import com.github.javafaker.Faker;
+
 import pages.CartPage;
 import pages.CheckOutPage;
 import pages.HomePage;
 import pages.LoginAndRigsterPage;
 import pages.PaymentPage;
 import pages.SignUpPage;
-import tools.AdRemove;
 import tools.BaseTest;
 
 public class testCase_16 extends BaseTest{
 	
-	public void creatAcc() throws AWTException, InterruptedException {
+	Faker faker = new Faker();
+	
+	public HomePage creatAcc(String name, String email, String password) throws AWTException, InterruptedException {
 		HomePage home = new HomePage(driver);
-		LoginAndRigsterPage register = new LoginAndRigsterPage(driver);
-		SignUpPage signUp = new SignUpPage(driver);
-		
-		AdRemove.removeAd(driver);
-		
-		home.clickSignUpLogIn();
-		
-		AdRemove.removeAd(driver);
 
-		register.registerNameAndEmail("user", "anything99@gmail.com");
-		register.clickSignUp();
+		LoginAndRigsterPage register = home.clickSignUpLogIn();
 		
-		AdRemove.removeAd(driver);
+		register.registerNameAndEmail(name, email);
 		
-		signUp.clickMrButton();
-		signUp.setPassword("123456789");
-		signUp.setDateOfBirth(13, "December", 2003);
-		signUp.clickNewSletterButton();
-		signUp.clickReciveSpecialOffersButton();
+		SignUpPage signUp = register.clickSignUp();
 		
-		signUp.scrollDown();
-		signUp.setFirstName("mustafa");
-		signUp.setLastName("muhammed");
-		signUp.setCompany("DEPI");
-		signUp.setAddress1("Taawan");
-		signUp.setAddress2("Etihad st");
-		signUp.setCountry("Canada");
-		signUp.setState("Giza");
-		
-		signUp.scrollDown();
-		
-		signUp.setCity("KingsLanding");
-		signUp.setZipCode("0000");
-		signUp.setMobileNumber("12345678901");
-		signUp.clickCreatAccountButton();
-		
-		AdRemove.removeAd(driver);
-		
-		signUp.clickContinueButton();
-		driver.close();
-		
-		WebDriverManager.firefoxdriver().setup();
-		driver = new FirefoxDriver();
-	  	driver.manage().window().maximize();
-	  	driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-	  	driver.get("https://automationexercise.com/");
+		signUp.fillAccountDetails(password, "15", "July", "1985", faker.name().firstName(), faker.name().lastName(), "Widgets Inc.", "456 Automation Dr", "Suite 101", "India", "California", "San Francisco", "94105", "9876543210");
+		home = signUp.clickContinueButton();
+	  	return home.clickLogoutBtn();
 	}
 
 	@Test(priority = 1)
 		public void everythingValid() throws InterruptedException, AWTException {
-			creatAcc();
-			HomePage home = new HomePage(driver);
-			CartPage cart = new CartPage(driver);
-			LoginAndRigsterPage login = new LoginAndRigsterPage(driver);
-			CheckOutPage checkOut = new CheckOutPage(driver);
-			PaymentPage pay = new PaymentPage(driver);
+	    	String name = faker.name().username();
+	    	String email = faker.internet().emailAddress();
+	    	String password = "password123";
 			
-			AdRemove.removeAd(driver);
+	    	HomePage home = creatAcc(name,email,password);
 
 			Assert.assertTrue(home.isHomePageDisplayed(),"Home page not shown");
 			
-			home.clickSignUpLogIn();
+			LoginAndRigsterPage login = home.clickSignUpLogIn();
 			
-			login.loginByEmailAndPassword("anything99@gmail.com", "123456789");
-			login.clickLogin();
-			
-			AdRemove.removeAd(driver);
+			login.loginByEmailAndPassword(email, password);
+			home = login.clickLogin();
 			
 			Assert.assertTrue(home.isLoggedIn(),"Not logged in");
 			
-			home.scrollDown();
-			home.addFirstProduct();
-			home.continueShopping();
-			home.clickCartPageButton();
+			home.scrollPage(500)
+				.addFirstProduct()
+				.continueShopping();
 			
-			AdRemove.removeAd(driver);
+			CartPage cart = home.clickCartPageButton();
+			
 			
 			Assert.assertTrue(cart.isCartPageDisplayed(),"Cart page not shown");
 			
-			cart.clickProceedToCheckout();
-			
-			AdRemove.removeAd(driver);
-			
+			CheckOutPage checkOut = cart.clickProceedToCheckout();
 			
 			Assert.assertTrue(checkOut.isAddressDetailsDisplayed(),"Address details not showen");
 			Assert.assertTrue(checkOut.isReviewOrderDisplayed(),"Order not showen");
 
 	        checkOut.typeComment("Leave at door");
-	        checkOut.clickPlaceOrder();
+	        PaymentPage pay = checkOut.clickPlaceOrder();
 	        
-	        AdRemove.removeAd(driver);
-	        
-	        pay.setNameOnCard("mohammed salah");
-	        pay.setCardNumber("123456789");
-	        pay.setCardCVC("123");
-	        pay.setCardMonthOfExpire("12");
-	        pay.setCardYearOfExpire("2170");
-	        pay.clickPayAndConfirmButton();
-	        
-	        AdRemove.removeAd(driver);
+	        pay.setPaymentDetails("Test User", "4100000000000000", "123", "12", "2030")
+	           .clickPayAndConfirmButton();
 	        
 	        Assert.assertTrue(pay.isOrderConfirmed(),"Order is not confirmed");
 			
@@ -128,51 +76,39 @@ public class testCase_16 extends BaseTest{
 	        
 	        Assert.assertTrue(pay.isAccountedDeleted(),"Account is not deleted");
 	        
-	        pay.clickContinueAfterDeleteButton();
+	        home = pay.clickContinueAfterDeleteButton();
 		}
 	@Test(priority = 2)
 	public void testInvalidPaymentDetails() throws InterruptedException, AWTException {
-		creatAcc();
-		HomePage home = new HomePage(driver);
-		CartPage cart = new CartPage(driver);
-		LoginAndRigsterPage login = new LoginAndRigsterPage(driver);
-		CheckOutPage checkOut = new CheckOutPage(driver);
-		PaymentPage pay = new PaymentPage(driver);
+		String name = faker.name().username();
+    	String email = faker.internet().emailAddress();
+    	String password = "password123";
+    	
+		HomePage home = creatAcc(name,email,password);
 		
-		AdRemove.removeAd(driver);
-	    
-	    home.clickSignUpLogIn();
-	    
-	    login.loginByEmailAndPassword("anything99@gmail.com", "123456789");
-	    login.clickLogin();
-	    
-	    AdRemove.removeAd(driver);
-	    
-	    home.scrollDown();
-	    home.addFirstProduct();
-	    home.continueShopping();
-	    home.clickCartPageButton();
-	    
-	    AdRemove.removeAd(driver);
-	    
-	    cart.clickProceedToCheckout();
-	    
-	    checkOut.clickPlaceOrder();
-	    
-	    AdRemove.removeAd(driver);
-	    
-	    pay.setNameOnCard("mohammed salah");
-        pay.setCardNumber("");
-        pay.setCardCVC("123");
-        pay.setCardMonthOfExpire("12");
-        pay.setCardYearOfExpire("2170");
-        pay.clickPayAndConfirmButton(); 
-	    
-	    String currUrl = driver.getCurrentUrl();
-	    Assert.assertTrue(currUrl.contains("/payment"));
-	    
-	    pay.clickDeleteAccount();
-	    pay.clickContinueAfterDeleteButton();
+		LoginAndRigsterPage login = home.clickSignUpLogIn();
+		
+		login.loginByEmailAndPassword(email, password);
+		home = login.clickLogin();
+		
+		home.addFirstProduct()
+			.continueShopping();
+		
+		CartPage cart = home.clickCartPageButton();
+		
+		CheckOutPage checkOut = cart.clickProceedToCheckout();
+
+        checkOut.typeComment("Leave at door");
+        PaymentPage pay = checkOut.clickPlaceOrder();
+        
+        pay.setPaymentDetails("Test User", "4100000000000000", "", "12", "2030")
+        .clickPayAndConfirmButton();
+        
+        String currUrl = driver.getCurrentUrl();
+	    Assert.assertFalse(!currUrl.contains("/payment"));
+
+	    pay.clickDeleteAccount()
+	       .clickContinueAfterDeleteButton();
 	}
  
 }

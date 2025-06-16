@@ -5,77 +5,110 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public class PaymentPage {
-	WebDriver driver;
+import tools.BasePage;
+
+public class PaymentPage extends BasePage {
 	
 	public PaymentPage(WebDriver driver) {
-		this.driver = driver;
+		super(driver);
+		removeAd(driver);
 		PageFactory.initElements(driver, this);
 	}
 	
-	@FindBy(xpath = "(//input[@name='name_on_card'])[1]")
+	@FindBy(name = "name_on_card")
 		private WebElement nameOnCard;
 	
-	@FindBy(xpath = "(//input[@name='card_number'])[1]")
+	@FindBy(name = "card_number")
 		private WebElement cardNumber;
 	
-	@FindBy(xpath = "(//input[@placeholder='ex. 311'])[1]")
+	@FindBy(name = "cvc")
 		private WebElement cvc;
 	
-	@FindBy(xpath = "(//input[@placeholder='MM'])[1]")
+	@FindBy(name = "expiry_month")
 		private WebElement monthOfExpire;
 	
-	@FindBy(xpath = "(//input[@placeholder='YYYY'])[1]")
+	@FindBy(name = "expiry_year")
 		private WebElement yearOfExpire;
 	
-	@FindBy(xpath = "(//button[normalize-space()='Pay and Confirm Order'])[1]")
+	@FindBy(id = "submit")
 		private WebElement payAndConfirmBtn;
 	
-	@FindBy(xpath = "(//p[normalize-space()='Congratulations! Your order has been confirmed!'])[1]")
+	@FindBy(xpath = "//b[normalize-space()='Order Placed!']")
 		private WebElement successMsg;
 	
-	@FindBy(xpath = "(//a[normalize-space()='Delete Account'])[1]")
+	@FindBy(xpath = "//a[normalize-space()='Download Invoice']")
+		private WebElement downloadInvoiceButton;
+	
+	@FindBy(xpath = "//a[normalize-space()='Delete Account']")
 		private WebElement deleteAccount;
 	
-	@FindBy(xpath = "(//b[normalize-space()='Account Deleted!'])[1]")
+	@FindBy(xpath = "//b[normalize-space()='Account Deleted!']")
 		private WebElement deletedMsg;
-	@FindBy(xpath = "(//a[normalize-space()='Continue'])[1]")
+    
+	@FindBy(xpath = "//a[normalize-space()='Continue']")
 		private WebElement continueAfterDeleteBtn;
-
-	public void clickContinueAfterDeleteButton() {
+	@FindBy(xpath = "//a[normalize-space()='Continue']")
+		private WebElement continueAfterOrder;
+	
+	public HomePage clickContinueAfterOrder() {
+		waitAndClick(continueAfterOrder);
+		return new HomePage(driver);
+	}
+	public void clickDownloadInvoice() {
+        waitAndClick(downloadInvoiceButton);
+    }
+	
+	public PaymentPage setPaymentDetails(String name, String number, String CVC, String month, String year) {
+        nameOnCard.sendKeys(name);
+        cardNumber.sendKeys(number);
+        cvc.sendKeys(CVC);
+        monthOfExpire.sendKeys(month);
+        yearOfExpire.sendKeys(year);
+        return this;
+    }
+	
+	public HomePage clickContinueAfterDeleteButton() {
 		continueAfterDeleteBtn.click();
+		return new HomePage(driver);
 	}
 	public boolean isAccountedDeleted() {
 		return deletedMsg.isDisplayed();
 	}
-	public void clickDeleteAccount() {
+	public PaymentPage clickDeleteAccount() {
 		deleteAccount.click();
+		return this;
 	}
 	public boolean isOrderConfirmed() {
 		return successMsg.isDisplayed();
 	}
 	
-	public void setNameOnCard(String name) {
+	public PaymentPage setNameOnCard(String name) {
 		nameOnCard.clear();
 		nameOnCard.sendKeys(name);
+		return this;
 	}
-	public void setCardNumber(String number) {
+	public PaymentPage setCardNumber(String number) {
 		cardNumber.clear();
 		cardNumber.sendKeys(number);
+		return this;
 	}
-	public void setCardCVC(String CVC) {
+	public PaymentPage setCardCVC(String CVC) {
 		cvc.clear();
 		cvc.sendKeys(CVC);
+		return this;
 	}
-	public void setCardMonthOfExpire(String month) {
+	public PaymentPage setCardMonthOfExpire(String month) {
 		monthOfExpire.clear();
 		monthOfExpire.sendKeys(month);
+		return this;
 	}
-	public void setCardYearOfExpire(String year) {
+	public PaymentPage setCardYearOfExpire(String year) {
 		yearOfExpire.clear();
 		yearOfExpire.sendKeys(year);
+		return this;
 	}
-	public void clickPayAndConfirmButton() {
+	public PaymentPage clickPayAndConfirmButton() {
 		payAndConfirmBtn.click();
+		return this;
 	}
 }

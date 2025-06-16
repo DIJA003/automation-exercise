@@ -3,6 +3,8 @@ package tests;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.github.javafaker.Faker;
+
 import pages.HomePage;
 import tools.BaseTest;
 
@@ -11,16 +13,19 @@ public class testCase_10 extends BaseTest {
 
 	@Test()
 		public void validEmailInHomePage() {
+			Faker faker = new Faker();
+			String email = faker.internet().emailAddress();
+			
 			HomePage home = new HomePage(driver);
 			
 			Assert.assertTrue(home.isHomePageDisplayed());
 			
-			home.scrollToBottom();
+			home.toBottomPage();
 			
 			Assert.assertTrue(home.isSubscriptionDisplayed());
 			
-			home.enterEmail("anything@gmail.com");
-			home.clickSubscripButton();
+			home.enterEmail(email)
+				.clickSubscripButton();
 			
 			Assert.assertTrue(home.isSuccessMessageDisplayed());	
 		}
@@ -30,12 +35,12 @@ public class testCase_10 extends BaseTest {
 			
 			Assert.assertTrue(home.isHomePageDisplayed());
 			
-			home.scrollToBottom();
+			home.toBottomPage();
 			
 			Assert.assertTrue(home.isSubscriptionDisplayed());
 			
-			home.enterEmail("Invaild-email");
-			home.clickSubscripButton();
+			home.enterEmail("Invaild-email")
+				.clickSubscripButton();
 			
 			Assert.assertFalse(home.isSuccessMessageDisplayed(),"Subscription shouldn't be successful with invalid email");	
 		}

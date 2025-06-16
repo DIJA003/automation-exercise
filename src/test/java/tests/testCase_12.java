@@ -8,7 +8,6 @@ import org.testng.annotations.Test;
 import pages.CartPage;
 import pages.HomePage;
 import pages.ProductPage;
-import tools.AdRemove;
 import tools.BaseTest;
 
 public class testCase_12 extends BaseTest {
@@ -16,27 +15,17 @@ public class testCase_12 extends BaseTest {
 	@Test(priority = 1)
 		public void addingTwoProducts() throws InterruptedException, AWTException {
 			HomePage home = new HomePage(driver);
-			ProductPage product = new ProductPage(driver);
-			CartPage cart = new CartPage(driver);
 			
-			AdRemove.removeAd(driver);
+			 new CartPage(driver);
 			
 			Assert.assertTrue(home.isHomePageDisplayed());
 			
-			home.clickProductPageButton();
-			
-			AdRemove.removeAd(driver);
-			
-			product.scrollDown();
-			product.addFirstProduct();
-			product.continueShopping();
-			
-			Thread.sleep(2000);
+			ProductPage product = home.clickProductPageButton()
+									  .addFirstProduct()
+									  .continueShopping();
 			
 			product.addSecondProduct();
-			product.clickViewCart();
-			
-			AdRemove.removeAd(driver);
+			CartPage cart = product.clickViewCart();
 			
 			int productCount = cart.getProductsCount();
 			Assert.assertEquals(productCount, 2);
@@ -51,16 +40,11 @@ public class testCase_12 extends BaseTest {
 	@Test(priority = 2)
 		public void addingOnlyOneProduct() throws InterruptedException, AWTException {
 			HomePage home = new HomePage(driver);
-		    ProductPage product = new ProductPage(driver);
-		    CartPage cart = new CartPage(driver);
 		    
-		    home.clickProductPageButton();
+		    ProductPage product = home.clickProductPageButton()
+		    						  .addFirstProduct();
 		    
-		    AdRemove.removeAd(driver);
-		    
-		    product.scrollDown();
-		    product.addFirstProduct();
-		    product.clickViewCart();
+		    CartPage cart = product.clickViewCart();
 		    
 		    Assert.assertFalse(cart.getProductsCount() >= 2);
 		}

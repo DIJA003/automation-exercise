@@ -5,31 +5,39 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-public class LoginAndRigsterPage {
-	WebDriver driver;
-	
+import tools.BasePage;
+
+public class LoginAndRigsterPage extends BasePage {
+
 	public LoginAndRigsterPage(WebDriver driver){
-		this.driver = driver;
+		super(driver);
+		removeAd(driver);
 		PageFactory.initElements(driver, this);
 	}
 	
+	@FindBy(xpath = "//h2[normalize-space()='Login to your account']")
+		private WebElement loginTitle;
+	
+	@FindBy(xpath = "//h2[normalize-space()='New User Signup!']")
+		private WebElement signupTitle;
+	
 	@FindBy(xpath = "(//input[@placeholder='Name'])[1]")
-		WebElement registerName;
+		private WebElement registerName;
 	
 	@FindBy(xpath = "(//input[@data-qa='signup-email'])[1]")
-		WebElement registerEmail;
+		private	WebElement registerEmail;
 	
 	@FindBy(xpath = "(//button[normalize-space()='Signup'])[1]")
-		WebElement registerBtn;
+		private	WebElement registerBtn;
 	
 	@FindBy(xpath = "(//input[@data-qa='login-email'])[1]")
-		WebElement loginEmail;
+		private WebElement loginEmail;
 	
 	@FindBy(xpath = "(//input[@placeholder='Password'])[1]")
-		WebElement loginPassword;
+		private WebElement loginPassword;
 	
 	@FindBy(xpath = "(//button[normalize-space()='Login'])[1]")
-		WebElement loginBtn;
+		private WebElement loginBtn;
 	
 	@FindBy(xpath = "//*[contains(text(), 'Email Address already exist!')]")
 		private WebElement emailExistMsg;
@@ -38,42 +46,58 @@ public class LoginAndRigsterPage {
 		return emailExistMsg.isDisplayed();
 	}
 	
-	public void registerName(String name) {
+	public boolean isLoginTitleDisplayed() {
+		return loginTitle.isDisplayed();
+	}
+	
+	public boolean isSignupTitleDisplayed() {
+		return signupTitle.isDisplayed();
+	}
+	
+	public LoginAndRigsterPage registerName(String name) {
 		registerName.clear();
 		registerName.sendKeys(name);
+		return this;
 	}
 	
-	public void registerEmail(String email) {
+	public LoginAndRigsterPage registerEmail(String email) {
 		registerEmail.clear();
 		registerEmail.sendKeys(email);
+		return this;
 	}
 	
-	public void registerNameAndEmail(String name, String email) {
+	public LoginAndRigsterPage registerNameAndEmail(String name, String email) {
 		registerName(name);
 		registerEmail(email);
+		return this;
 	}
 	
-	public void clickSignUp() {
+	public SignUpPage clickSignUp() {
 		registerBtn.click();
+		return new SignUpPage(driver);
 	}
 	
-	public void loginEmail(String email) {
+	public LoginAndRigsterPage loginEmail(String email) {
 		loginEmail.clear();
 		loginEmail.sendKeys(email);
+		return this;
 	}
 	
-	public void loginPassword(String password) {
+	public LoginAndRigsterPage loginPassword(String password) {
 		loginPassword.clear();
 		loginPassword.sendKeys(password);
+		return this;
 	}
 	
-	public void loginByEmailAndPassword(String email, String password) {
+	public LoginAndRigsterPage loginByEmailAndPassword(String email, String password) {
 		loginEmail(email);
 		loginPassword(password);
+		return this;
 	}
 	
-	public void clickLogin() {
+	public HomePage clickLogin() {
 		loginBtn.click();
+		return new HomePage(driver);
 	}
 
 }

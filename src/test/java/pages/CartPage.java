@@ -1,9 +1,10 @@
 package pages;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -11,64 +12,79 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-public class CartPage {
-	WebDriver driver;
+import tools.BasePage;
+
+public class CartPage extends BasePage {
 	
 	public CartPage(WebDriver driver) {
-		this.driver = driver;
+		super(driver);
+		removeAd(driver);
 		PageFactory.initElements(driver, this);
 	}
+	@FindBy(xpath = "//u[normalize-space()='Register / Login']")
+		private WebElement registerLoginBtn;
 	
 	@FindBy(xpath = "(//li[@class='active'])[1]")
-	private WebElement cartPageBody;
+		private WebElement cartPageBody;
 	
 	@FindBy(xpath = "//h2[normalize-space()='Subscription']")
-	private WebElement subscriptionHead;
+		private WebElement subscribtionHead;
 	
 	@FindBy(xpath = "//input[@id='susbscribe_email']")
-	private WebElement emailInput;
+		private WebElement emailInput;
 	
 	@FindBy(xpath = "//i[@class='fa fa-arrow-circle-o-right']")
-	private WebElement subscriptBtn;
+		private WebElement subscriptBtn;
+
+	@FindBy(xpath = "(//a[normalize-space()='Proceed To Checkout'])[1]")
+		private WebElement proceedToCheckout;
+
+	@FindBy(xpath = "//a[normalize-space()='Signup / Login']")
+		private WebElement loginRegisterBtn;
 	
-	@FindBy(xpath = "(//td[@class='cart_description'])[1]")
-	private WebElement product1;
+	@FindBy(css = "td.cart_description h4 a")
+		private List<WebElement> cartProductNames;
+	
 
-    @FindBy(xpath = "(//td[@class='cart_description'])[2]")
-    private WebElement product2;
-    
-    @FindBy(xpath = "(//a[normalize-space()='Proceed To Checkout'])[1]")
-    private WebElement proceedToCheckout;
-    
-    @FindBy(xpath = "(//u[normalize-space()='Register / Login'])[1]")
-    private WebElement loginRegisterBtn;
-    
-    private By cartRows = By.xpath("//tr[starts-with(@id, 'product-')]");
+	private By cartRows = By.xpath("//tr[starts-with(@id, 'product-')]");
 
-    public boolean isCartPageDisplayed() {
-    	return cartPageBody.isDisplayed();
-    }
-    public void clickLoginRigsterButton() {
-    	WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-		wait.until(ExpectedConditions.visibilityOf(loginRegisterBtn));
-	    wait.until(ExpectedConditions.elementToBeClickable(loginRegisterBtn)).click();
-    }
+	public List<String> getProductNamesInCart() {
+	    waitForAllElements(cartProductNames);
+	    return cartProductNames.stream()
+	                           .map(WebElement::getText)
+	                           .collect(Collectors.toList());
+	}
+	
+	public boolean isCartPageDisplayed() {
+		return cartPageBody.isDisplayed();
+	}
     
-    public void clickProceedToCheckout() {
-    	WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-		wait.until(ExpectedConditions.elementToBeClickable(proceedToCheckout)).click();
-    }
+	public LoginAndRigsterPage clickRigsterLoginButton() {
+		waitAndClick(registerLoginBtn);
+		return new LoginAndRigsterPage(driver);
+	}
+	public LoginAndRigsterPage clickLoginRigsterButton() {
+		waitAndClick(loginRegisterBtn);
+		return new LoginAndRigsterPage(driver);
+	}
+
+	public CheckOutPage clickProceedToCheckout() {
+		waitAndClick(proceedToCheckout);
+		return new CheckOutPage(driver);
+	}
+
 	public boolean isSubscriptionDisplayed() {
-		return subscriptionHead.isDisplayed();
+		return subscribtionHead.isDisplayed();
 	}
 	
-	
-	public void enterEmail(String email) {
+	public CartPage enterEmail(String email) {
 		emailInput.sendKeys(email);
+		return this;
 	}
 	
-	public void clickSubscripButton() {
+	public CartPage clickSubscribeButton() {
 		subscriptBtn.click();
+		return this;
 	}
 	
 	public boolean isSuccessMessageDisplayed() {
@@ -77,46 +93,50 @@ public class CartPage {
 	}
 	
 	public boolean isProductDisplayed(int index) {
-	    By productLocator = By.xpath("(//td[@class='cart_description'])[" + index + "]");
-	    return driver.findElement(productLocator).isDisplayed();
+		By productLocator = By.xpath("(//td[@class='cart_description'])[" + index + "]");
+		return driver.findElement(productLocator).isDisplayed();
 	}
-    
+
 	public int getProductsCount() {
-	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-	    return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(cartRows)).size();
+		return driver.findElements(cartRows).size();
 	}
-    
-    public String getProductPrice(int index) {
-    	By pLocate = By.xpath("(//td[@class='cart_price'])[" + index + "]");
-    	WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(pLocate)).getText().trim();
-    }
-    public String getQuantityOfProduct(int index) {
-    	By qLocate = By.xpath("(//td[@class='cart_quantity']/button)[" + index + "]");
-        
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(qLocate)).getText().trim();
-    }
-    
-    public String getTotalPriceOfProduct(int index) {
-    	By tLocate = By.xpath("(//td[@class='cart_total'])[" + index + "]");
-    	WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(tLocate)).getText().trim();
-    }
-    
-    public String getProductName(int index) {
-        By nLocate = By.xpath("(//td[@class='cart_description'])[" + index + "]");
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(nLocate)).getText().trim();
-    }
-    
-    public void scrollToBottom() {
-		JavascriptExecutor js = (JavascriptExecutor) driver;
-		js.executeScript("window.scrollBy(0,document.body.scrollHeight)");
+
+	public String getProductPrice(int index) {
+		By pLocate = By.xpath("(//td[@class='cart_price'])[" + index + "]");
+		return waitForElement(pLocate).getText().trim();
 	}
-    public void scrollDown() {
-	    JavascriptExecutor js = (JavascriptExecutor) driver;
-	    js.executeScript("window.scrollBy(0, 500)");
+
+	public String getQuantityOfProduct(int index) {
+		By qLocate = By.xpath("(//td[@class='cart_quantity']/button)[" + index + "]");
+		return waitForElement(qLocate).getText().trim();
 	}
-	
+
+	public String getTotalPriceOfProduct(int index) {
+		By tLocate = By.xpath("(//td[@class='cart_total'])[" + index + "]");
+		return waitForElement(tLocate).getText().trim();
+	}
+
+	public String getProductName(int index) {
+		By nLocate = By.xpath("(//td[@class='cart_description'])[" + index + "]");
+		return waitForElement(nLocate).getText().trim();
+	}
+
+	public CartPage clickRemoveProduct(int index) {
+		By rLocate = By.xpath("(//a[@class='cart_quantity_delete'])[" + index + "]");
+		WebElement elementToRemove = waitForElement(rLocate);
+		elementToRemove.click();
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+		wait.until(ExpectedConditions.stalenessOf(elementToRemove));
+		return this;
+	}
+
+	public CartPage toPageBottom() {
+		scrollToBottom();	
+		return this;
+	}
+
+	public CartPage scrollPage(int pixles) {
+		scrollDownBy(pixles);
+		return this;
+	}
 }
